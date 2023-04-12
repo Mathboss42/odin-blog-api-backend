@@ -1,3 +1,4 @@
+const passport = require("passport");
 const { body, validationResult } = require("express-validator");
 
 const Post = require('../models/Post');
@@ -10,6 +11,15 @@ exports.postsGetAll = async (req, res, next) => {
         return next(err);
     }
 };
+
+exports.postsNewPost = [
+    passport.authenticate('jwt', {session: false}),
+    
+    (req, res, next) => {
+        console.log('next called')
+        res.send('NEW POST');
+    }
+]
 
 // exports.postsGetPost = async (req, res) => {
 //     const post = await Post.findOne({ _id: req.params.id }).populate('author');

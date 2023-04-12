@@ -35,7 +35,7 @@ exports.authPost = [
                 return;
             }
 
-            const token = jwt.sign({user: req.user}, 'secret');
+            const token = jwt.sign({user: req.user}, process.env.JWT_KEY, { expiresIn: '15s'});
             return res.json({user: req.user, token});
         });
     }
