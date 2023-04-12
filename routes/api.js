@@ -3,8 +3,11 @@ var router = express.Router();
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
-  // res.json({asd:'asd'});
-  res.redirect('/api');
+    res.redirect('/auth');
 });
+
+router.get('/posts', function(req, res, next) {
+    res.redirect('/posts');
+})
 
 module.exports = router;

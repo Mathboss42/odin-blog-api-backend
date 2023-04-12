@@ -5,6 +5,9 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 
 var indexRouter = require('./routes/index');
+var apiRouter = require('./routes/api');
+var authRouter = require('./routes/auth');
+var postsRouter = require('./routes/posts');
 
 var app = express();
 
@@ -14,7 +17,7 @@ const mongoDB = process.env.URL_MONGO;
 
 main().catch(err => console.log(err));
 async function main() {
-  await mongoose.connect(mongoDB);
+  await mongoose.connect(mongoDB, {authSource: "admin"});
 }
 
 app.use(logger('dev'));
@@ -24,6 +27,9 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
+app.use('/api', apiRouter);
+app.use('/auth', authRouter);
+app.use('/posts', postsRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
@@ -38,7 +44,7 @@ app.use(function(err, req, res, next) {
 
   // render the error page
   res.status(err.status || 500);
-  res.render('error');
+  res.send(err.message);
 });
 
 module.exports = app;
