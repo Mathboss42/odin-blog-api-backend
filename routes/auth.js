@@ -1,9 +1,11 @@
 var express = require('express');
 var router = express.Router();
 
+const authController = require('../controllers/authController');
+
 /* GET home page. */
-router.get('/', function(req, res, next) {
-    res.send('auth');
-});
+router.post('/', authController.authPost);
+
+router.post('/new', authController.newPost);
 
 module.exports = router;

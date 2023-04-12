@@ -9,6 +9,8 @@ var apiRouter = require('./routes/api');
 var authRouter = require('./routes/auth');
 var postsRouter = require('./routes/posts');
 
+require('./passportConfig');
+
 var app = express();
 
 const mongoose = require('mongoose');
