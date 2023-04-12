@@ -8,6 +8,15 @@ var indexRouter = require('./routes/index');
 
 var app = express();
 
+const mongoose = require('mongoose');
+mongoose.set('strictQuery', false);
+const mongoDB = process.env.URL_MONGO;
+
+main().catch(err => console.log(err));
+async function main() {
+  await mongoose.connect(mongoDB);
+}
+
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
