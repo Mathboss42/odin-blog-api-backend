@@ -25,23 +25,17 @@ exports.authPost = [
         next();
     },
 
-    passport.authenticate('local', {session: false}, (err, user, info) => {
-        if (err) {
-            return res.status(400).json({
-                message: 'Wront id or pass.',
-                user: user
-            });
-        }
-    }),
+    passport.authenticate('local', {session: false}),
 
     (req, res, next) => {
+        console.log('req.user', req.user);
         req.login(req.user, {session: false}, (err) => {
             if (err) {
                 res.send(err);
                 return;
             }
 
-            const token = jwt.sign(req.user, 'secret');
+            const token = jwt.sign({user: req.user}, 'secret');
             return res.json({user: req.user, token});
         });
     }
