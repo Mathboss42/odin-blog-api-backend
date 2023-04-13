@@ -5,7 +5,7 @@ const Comment = require('../models/Comment');
 
 exports.commentsGetAll = async (req, res, next) => {
     try {
-        const comments = await Comment.find({});
+        const comments = await Comment.find({}).populate('author', { username: 1, _id: 0 });
         res.json({ comments });
     } catch (err) {
         return next(err);
@@ -15,7 +15,7 @@ exports.commentsGetAll = async (req, res, next) => {
 exports.commentsGetAllFromPost = async (req, res, next) => {
     try {
         console.log('called');  
-        const comments = await Comment.find({ post: req.params.postid });
+        const comments = await Comment.find({ post: req.params.postid }).populate('author', { username: 1, _id: 0 });
         console.log(req.params)
         res.json({ comments });
     } catch (err) {
