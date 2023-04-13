@@ -22,11 +22,12 @@ router.get('/comments', commentsController.commentsGetAll);
 
 router.get('/comments/:id', commentsController.commentsGetOne);
 
+router.get('/posts/:postid/comments', commentsController.commentsGetAllFromPost);
+
 router.post('/comments/new', commentsController.commentsNewComment);
 
 router.delete('/comments/:id', commentsController.commentsDeleteComment);
 
 router.put('/comments/:id', commentsController.commentsUpdateComment);
-
 
 module.exports = router;

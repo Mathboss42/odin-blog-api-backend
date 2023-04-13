@@ -12,6 +12,17 @@ exports.commentsGetAll = async (req, res, next) => {
     }
 };
 
+exports.commentsGetAllFromPost = async (req, res, next) => {
+    try {
+        console.log('called');  
+        const comments = await Comment.find({ post: req.params.postid });
+        console.log(req.params)
+        res.json({ comments });
+    } catch (err) {
+        return next(err);
+    }
+};
+
 exports.commentsGetOne = async (req, res, next) => {
     try {
         const comment = await Comment.findOne({ _id: req.params.id }).populate('author', { username: 1, _id: 0 });
@@ -26,6 +37,10 @@ exports.commentsNewComment = [
     passport.authenticate('jwt', {session: false}),
 
     body('text', 'Text Contents must not be empty.')
+        .trim()
+        .isLength({ min: 2 })
+        .escape(),
+    body('post', 'Post must not be empty.')
         .trim()
         .isLength({ min: 2 })
         .escape(),
@@ -44,6 +59,7 @@ exports.commentsNewComment = [
         const comment = new Comment({
             text: req.body.text,
             author: req.user._id,
+            post: req.user._id,
         });
 
         comment.save().then(() => {
@@ -51,6 +67,7 @@ exports.commentsNewComment = [
                 comment: {
                     text: comment.text,
                     author: req.user.username,
+                    post: comment.post,
                 }
             });
         }).catch((err) => {
@@ -89,6 +106,10 @@ exports.commentsUpdateComment = [
         .trim()
         .isLength({ min: 2 })
         .escape(),
+    body('post', 'Post must not be empty.')
+        .trim()
+        .isLength({ min: 2 })
+        .escape(),
 
     async (req, res, next) => {
         try {
@@ -111,6 +132,7 @@ exports.commentsUpdateComment = [
                             post: {
                                 text: req.body.text,
                                 author: comment.author.username,
+                                post: comment.post,
                             }
                         });
                     }).catch((err) => {
