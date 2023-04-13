@@ -5,7 +5,7 @@ const Post = require('../models/Post');
 
 exports.postsGetAll = async (req, res, next) => {
     try {
-        const posts = await Post.find({});
+        const posts = await Post.find({ status: 'published' }).populate('author', { username: 1, _id: 0 });
         res.json({ posts: posts });
     } catch (err) {
         return next(err);
