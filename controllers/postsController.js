@@ -24,10 +24,19 @@ exports.postsNewPost = [
     }
 ];
 
-// exports.postsGetPost = async (req, res) => {
-//     const post = await Post.findOne({ _id: req.params.id }).populate('author');
-//     res.render('post', { post: post });
-// };
+exports.postsGetOne = async (req, res, next) => {
+    try {
+        const post = await Post.findOne({ _id: req.params.id }, { _id: 0 }).populate('author', { username: 1, _id: 0 });
+        if (post.status === 'published') {
+            res.json({ post });
+        } else {
+            res.status(403).send('Post has not been published yet.');
+        }
+    } catch (err) {
+        console.log(err);
+        return next(err);
+    }
+};
 
 // exports.postCreateGet = (req, res) => {
 //     if (req.user) {
