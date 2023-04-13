@@ -58,3 +58,16 @@ exports.commentsNewComment = [
         });
     }
 ];
+
+exports.commentsDeleteComment = [
+    passport.authenticate('jwt', {session: false}),
+
+    (req, res, next) => {
+        Comment.findByIdAndRemove(req.params.id)
+        .then(() => {
+            res.status(200).send('Comment successfully deleted');
+        }).catch((err) => {
+            next(err);
+        });
+    }
+];
