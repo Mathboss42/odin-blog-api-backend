@@ -23,8 +23,6 @@ exports.postsNewPost = [
         }
     },
 
-    (req, res, next) => {console.log('yellow'), next()},
-
     body('title', 'Title must not be empty.')
         .trim()
         .isLength({ min: 2 })
@@ -39,15 +37,14 @@ exports.postsNewPost = [
         .escape()
         .custom((value, { req }) => value === 'published' || value === 'archived'),
 
-    async (req, res, next) => {
-        console.log('green')
+    (req, res, next) => {
         const errors = validationResult(req);
 
         if(!errors.isEmpty()) {
-            console.log('brown')
             res.status(400).json({
                 title: req.body.title,
                 text: req.body.text,
+                status: req.body.status,
                 errors: errors.array()
             })
             return;
@@ -59,8 +56,6 @@ exports.postsNewPost = [
             author: req.user._id,
             status: req.body.status
         });
-
-        console.log('post', post)
 
         post.save().then(() => {
             res.status(200).json({
@@ -108,14 +103,61 @@ exports.postsDeletePost = [
     }
 ];
 
+exports.postsUpdatePost = [
+    passport.authenticate('jwt', {session: false}),
+    
+    (req, res, next) => {
+        if (req.user.isAdmin) {
+            return next();
+        } else {
+            res.status(403).send('NOT ADMIN, DENIED.');
+        }
+    },
 
+    body('title', 'Title must not be empty.')
+        .trim()
+        .isLength({ min: 2 })
+        .escape(),
+    body('text', 'Text Contents must not be empty.')
+        .trim()
+        .isLength({ min: 2 })
+        .escape(),
+    body('status', 'Status must be specified and must be either `published` or `archived`.')
+        .trim()
+        .isLength({ min: 1 })
+        .escape()
+        .custom((value, { req }) => value === 'published' || value === 'archived'),
 
+    async (req, res, next) => {
+        const errors = validationResult(req);
 
+        if(!errors.isEmpty()) {
+            res.status(400).json({
+                title: req.body.title,
+                text: req.body.text,
+                status: req.body.status,
+                errors: errors.array()
+            })
+            return;
+        }
 
-// exports.postDeletePost = (req, res, next) => {
-//     Post.findByIdAndRemove(req.params.id).then(() => {
-//         res.redirect('/');
-//     }).catch((err) => {
-//         next(err);
-//     });
-// };
+        Post.findByIdAndUpdate(req.params.id, {
+            title: req.body.title,
+            text: req.body.text,
+            author: req.user._id,
+            status: req.body.status
+        }).then(() => {
+                res.status(200).json({
+                    post: {
+                        title: req.body.title,
+                        text: req.body.text,
+                        author: req.user.username,
+                        status: req.body.status
+                    }
+                });
+            }).catch((err) => {
+                console.log(err);
+                return next(err);
+            })
+    }
+]
