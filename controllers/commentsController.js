@@ -21,3 +21,40 @@ exports.commentsGetOne = async (req, res, next) => {
         return next(err);
     }
 };
+
+exports.commentsNewComment = [
+    passport.authenticate('jwt', {session: false}),
+
+    body('text', 'Text Contents must not be empty.')
+        .trim()
+        .isLength({ min: 2 })
+        .escape(),
+    
+    (req, res, next) => {
+        const errors = validationResult(req);
+
+        if(!errors.isEmpty()) {
+            res.status(400).json({
+                text: req.body.text,
+                errors: errors.array()
+            })
+            return;
+        }
+
+        const comment = new Comment({
+            text: req.body.text,
+            author: req.user._id,
+        });
+
+        comment.save().then(() => {
+            res.status(200).json({
+                comment: {
+                    text: comment.text,
+                    author: req.user.username,
+                }
+            });
+        }).catch((err) => {
+            return next(err);
+        });
+    }
+];

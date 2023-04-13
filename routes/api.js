@@ -22,5 +22,7 @@ router.get('/comments', commentsController.commentsGetAll);
 
 router.get('/comments/:id', commentsController.commentsGetOne);
 
+router.post('/comments/new', commentsController.commentsNewComment);
+
 
 module.exports = router;
