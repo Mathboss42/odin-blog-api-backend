@@ -36,7 +36,7 @@ passport.use(
     }, async function(jwtPayload, done){
         console.log('called')
         try {
-            const user = await User.findOne({id: jwtPayload.userId}, { isAdmin: 1, _id: 0 });
+            const user = await User.findOne({id: jwtPayload.userId}, { username: 1, isAdmin: 1 });
 
             if (user) {
                 return done(null, user);

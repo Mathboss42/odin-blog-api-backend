@@ -11,5 +11,7 @@ router.get('/posts/:id', postsConroller.postsGetOne);
 
 router.post('/posts/new', postsConroller.postsNewPost);
 
+router.post('/posts/new', postsConroller.postsNewPost);
+
 
 module.exports = router;

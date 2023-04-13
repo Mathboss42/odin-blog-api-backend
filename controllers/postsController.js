@@ -17,10 +17,63 @@ exports.postsNewPost = [
     
     (req, res, next) => {
         if (req.user.isAdmin) {
-            res.send('NEW POST');
+            return next();
         } else {
             res.status(403).send('NOT ADMIN, DENIED.');
         }
+    },
+
+    (req, res, next) => {console.log('yellow'), next()},
+
+    body('title', 'Title must not be empty.')
+        .trim()
+        .isLength({ min: 2 })
+        .escape(),
+    body('text', 'Text Contents must not be empty.')
+        .trim()
+        .isLength({ min: 2 })
+        .escape(),
+    body('status', 'Status must be specified and must be either `published` or `archived`.')
+        .trim()
+        .isLength({ min: 1 })
+        .escape()
+        .custom((value, { req }) => value === 'published' || value === 'archived'),
+
+    async (req, res, next) => {
+        console.log('green')
+        const errors = validationResult(req);
+
+        if(!errors.isEmpty()) {
+            console.log('brown')
+            res.status(400).json({
+                title: req.body.title,
+                text: req.body.text,
+                errors: errors.array()
+            })
+            return;
+        }
+
+        const post = new Post({
+            title: req.body.title,
+            text: req.body.text,
+            author: req.user._id,
+            status: req.body.status
+        });
+
+        console.log('post', post)
+
+        post.save().then(() => {
+            res.status(200).json({
+                post: {
+                    title: post.title,
+                    text: post.text,
+                    author: req.user.username,
+                    status: post.status
+                }
+            });
+        }).catch((err) => {
+            return next(err);
+        });
     }
 ];
 
@@ -38,51 +91,44 @@ exports.postsGetOne = async (req, res, next) => {
     }
 };
 
-// exports.postCreateGet = (req, res) => {
-//     if (req.user) {
-//         res.render('new', { title: undefined, text: undefined});
-//     } else {
-//         res.redirect('/');
-//     }
-// };
 
-// exports.postCreatePost = [
-//     body('title', 'Title must not be empty.')
-//         .trim()
-//         .isLength({ min: 2 })
-//         .escape(),
-//     body('text', 'Text Contents must not be empty.')
-//         .trim()
-//         .isLength({ min: 2 })
-//         .escape(),
+exports.postCreatePost = [
+    body('title', 'Title must not be empty.')
+        .trim()
+        .isLength({ min: 2 })
+        .escape(),
+    body('text', 'Text Contents must not be empty.')
+        .trim()
+        .isLength({ min: 2 })
+        .escape(),
 
-//     async (req, res, next) => {
-//         const errors = validationResult(req);
+    async (req, res, next) => {
+        const errors = validationResult(req);
 
-//         if(!errors.isEmpty()) {
-//             res.render('new', {
-//                 title: req.body.title,
-//                 text: req.body.text,
-//             });
-//             return;
-//         }
+        if(!errors.isEmpty()) {
+            res.render('new', {
+                title: req.body.title,
+                text: req.body.text,
+            });
+            return;
+        }
         
-//         console.log(req.user);
+        console.log(req.user);
 
-//         const post = new Post({
-//             title: req.body.title,
-//             text: req.body.text,
-//             timeStamp: Date.now(),
-//             author: req.user._id
-//         });
+        const post = new Post({
+            title: req.body.title,
+            text: req.body.text,
+            timeStamp: Date.now(),
+            author: req.user._id
+        });
 
-//         post.save().then(() => {
-//             res.redirect(post.url);
-//         }).catch((err) => {
-//             return next(err);
-//         });
-//     }
-// ];
+        post.save().then(() => {
+            res.redirect(post.url);
+        }).catch((err) => {
+            return next(err);
+        });
+    }
+];
 
 // exports.postDeleteGet = async (req, res, next) => {
 //     if (req.user && req.user.isAdmin) {
