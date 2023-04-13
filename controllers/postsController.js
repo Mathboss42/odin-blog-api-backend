@@ -91,53 +91,26 @@ exports.postsGetOne = async (req, res, next) => {
     }
 };
 
+exports.postsDeletePost = [
+    passport.authenticate('jwt', {session: false}),
 
-exports.postCreatePost = [
-    body('title', 'Title must not be empty.')
-        .trim()
-        .isLength({ min: 2 })
-        .escape(),
-    body('text', 'Text Contents must not be empty.')
-        .trim()
-        .isLength({ min: 2 })
-        .escape(),
-
-    async (req, res, next) => {
-        const errors = validationResult(req);
-
-        if(!errors.isEmpty()) {
-            res.render('new', {
-                title: req.body.title,
-                text: req.body.text,
+    (req, res, next) => {
+        if (req.user.isAdmin) {
+            Post.findByIdAndRemove(req.params.id)
+            .then(() => {
+                res.status(200).send('Post successfully deleted');
+            }).catch((err) => {
+                next(err);
             });
-            return;
+        } else {
+            res.status(403).send('You do not have permission to delete this post.');
         }
-        
-        console.log(req.user);
-
-        const post = new Post({
-            title: req.body.title,
-            text: req.body.text,
-            timeStamp: Date.now(),
-            author: req.user._id
-        });
-
-        post.save().then(() => {
-            res.redirect(post.url);
-        }).catch((err) => {
-            return next(err);
-        });
     }
 ];
 
-// exports.postDeleteGet = async (req, res, next) => {
-//     if (req.user && req.user.isAdmin) {
-//         const post = await Post.findById(req.params.id);
-//         res.render('delete', { post: post });
-//     } else {
-//         res.redirect('/');
-//     }
-// };
+
+
+
 
 // exports.postDeletePost = (req, res, next) => {
 //     Post.findByIdAndRemove(req.params.id).then(() => {
