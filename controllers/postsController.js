@@ -16,10 +16,13 @@ exports.postsNewPost = [
     passport.authenticate('jwt', {session: false}),
     
     (req, res, next) => {
-        console.log('next called')
-        res.send('NEW POST');
+        if (req.user.isAdmin) {
+            res.send('NEW POST');
+        } else {
+            res.status(403).send('NOT ADMIN, DENIED.');
+        }
     }
-]
+];
 
 // exports.postsGetPost = async (req, res) => {
 //     const post = await Post.findOne({ _id: req.params.id }).populate('author');

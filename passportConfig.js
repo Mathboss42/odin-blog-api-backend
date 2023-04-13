@@ -10,7 +10,6 @@ const User = require('./models/User');
 passport.use(
     new LocalStrategy(async(username, password, done) => {
         try {
-            console.log('yoyoyo')
             const user = await User.findOne({ username: username });
             if (!user) {
                 return done(null, false, { message: "Incorrect username" });
@@ -37,7 +36,7 @@ passport.use(
     }, async function(jwtPayload, done){
         console.log('called')
         try {
-            const user = await User.findById(jwtPayload.user._id);
+            const user = await User.findOne({id: jwtPayload.userId}, { isAdmin: 1, _id: 0 });
 
             if (user) {
                 return done(null, user);

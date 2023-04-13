@@ -28,16 +28,8 @@ exports.authPost = [
     passport.authenticate('local', {session: false}),
 
     (req, res, next) => {
-        console.log('req.user', req.user);
-        req.login(req.user, {session: false}, (err) => {
-            if (err) {
-                res.send(err);
-                return;
-            }
-
-            const token = jwt.sign({user: req.user}, process.env.JWT_KEY, { expiresIn: '15s'});
-            return res.json({user: req.user, token});
-        });
+        const token = jwt.sign({userId: req.user.id}, process.env.JWT_KEY, { expiresIn: '1m'});
+        return res.json({token});
     }
 ];
 
