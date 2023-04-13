@@ -62,12 +62,73 @@ exports.commentsNewComment = [
 exports.commentsDeleteComment = [
     passport.authenticate('jwt', {session: false}),
 
-    (req, res, next) => {
-        Comment.findByIdAndRemove(req.params.id)
-        .then(() => {
-            res.status(200).send('Comment successfully deleted');
-        }).catch((err) => {
-            next(err);
-        });
+    async (req, res, next) => {
+        try { 
+            const comment = await Comment.findById(req.params.id).populate('author');
+            console.log(req.user.username, comment.author.username)
+            if (req.user.isAdmin || req.user.username === comment.author.username) {
+                Comment.findByIdAndRemove(req.params.id)
+                .then(() => {
+                    res.status(200).send('Comment successfully deleted');
+                }).catch((err) => {
+                    next(err);
+                });
+            } else {
+                res.status(403).send('You do not have permission to delete this comment.');
+            }
+        } catch (err) {
+            return next(err);
+        }
     }
 ];
+
+exports.postsUpdatePost = [
+    passport.authenticate('jwt', {session: false}),
+
+    body('title', 'Title must not be empty.')
+        .trim()
+        .isLength({ min: 2 })
+        .escape(),
+    body('text', 'Text Contents must not be empty.')
+        .trim()
+        .isLength({ min: 2 })
+        .escape(),
+    body('status', 'Status must be specified and must be either `published` or `archived`.')
+        .trim()
+        .isLength({ min: 1 })
+        .escape()
+        .custom((value, { req }) => value === 'published' || value === 'archived'),
+
+    async (req, res, next) => {
+        const errors = validationResult(req);
+
+        if(!errors.isEmpty()) {
+            res.status(400).json({
+                title: req.body.title,
+                text: req.body.text,
+                status: req.body.status,
+                errors: errors.array()
+            })
+            return;
+        }
+
+        Post.findByIdAndUpdate(req.params.id, {
+            title: req.body.title,
+            text: req.body.text,
+            author: req.user._id,
+            status: req.body.status
+        }).then(() => {
+                res.status(200).json({
+                    post: {
+                        title: req.body.title,
+                        text: req.body.text,
+                        author: req.user.username,
+                        status: req.body.status
+                    }
+                });
+            }).catch((err) => {
+                console.log(err);
+                return next(err);
+            })
+    }
+]
