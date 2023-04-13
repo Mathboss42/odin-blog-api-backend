@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 
 const postsController = require('../controllers/postsController');
+const commentsController = require('../controllers/commentsController');
 
 // POST ROUTES
 
@@ -14,6 +15,12 @@ router.post('/posts/new', postsController.postsNewPost);
 router.delete('/posts/:id', postsController.postsDeletePost);
 
 router.put('/posts/:id', postsController.postsUpdatePost);
+
+// COMMENT ROUTES
+
+router.get('/comments', commentsController.commentsGetAll);
+
+router.get('/comments/:id', commentsController.commentsGetOne);
 
 
 module.exports = router;
