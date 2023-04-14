@@ -6,9 +6,13 @@ const commentsController = require('../controllers/commentsController');
 
 // POST ROUTES
 
-router.get('/posts', postsController.postsGetAll);
+router.get('/posts', postsController.postsGetPublished);
+
+router.post('/posts/all', postsController.postsGetAll);
 
 router.get('/posts/:id', postsController.postsGetOne);
+
+router.post('/posts/:id', postsController.postsGetHidden);
 
 router.post('/posts/new', postsController.postsNewPost);
 

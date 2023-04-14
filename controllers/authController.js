@@ -44,6 +44,19 @@ exports.authIsLoggedIn = [
     }
 ];
 
+exports.authAdmin = [
+    (req, res, next) => {console.log('authadmin function'); next()},
+    passport.authenticate('jwt', {session: false}),
+
+    (req, res, next) => {
+        if (req.user.isAdmin) {
+            res.status(200).send('Is Logged In');
+        } else {
+            res.status(401).send('You are not authorized');
+        }
+    }
+]
+
 exports.newPost = [
     body("username", "Username must not be empty.")
         .trim()

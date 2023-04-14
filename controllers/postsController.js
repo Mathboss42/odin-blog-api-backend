@@ -3,7 +3,29 @@ const { body, validationResult } = require("express-validator");
 
 const Post = require('../models/Post');
 
-exports.postsGetAll = async (req, res, next) => {
+exports.postsGetAll = [
+    passport.authenticate('jwt', {session: false}),
+
+    (req, res, next) => {
+        console.log('get all posts')
+        if (req.user.isAdmin) {
+            return next();
+        } else {
+            res.status(403).send('NOT ADMIN, DENIED.');
+        }
+    },
+
+    async (req, res, next) => {
+        try {
+            const posts = await Post.find({}).populate('author', { username: 1, _id: 0 });
+            res.json({ posts: posts });
+        } catch (err) {
+            return next(err);
+        }
+    }
+]
+
+exports.postsGetPublished = async (req, res, next) => {
     try {
         const posts = await Post.find({ status: 'published' }).populate('author', { username: 1, _id: 0 });
         res.json({ posts: posts });
@@ -11,6 +33,7 @@ exports.postsGetAll = async (req, res, next) => {
         return next(err);
     }
 };
+
 
 exports.postsGetOne = async (req, res, next) => {
     try {
@@ -25,6 +48,29 @@ exports.postsGetOne = async (req, res, next) => {
         return next(err);
     }
 };
+
+exports.postsGetHidden = [
+    passport.authenticate('jwt', {session: false}),
+
+    (req, res, next) => {
+        console.log('get hidden')
+        if (req.user.isAdmin) {
+            return next();
+        } else {
+            res.status(403).send('NOT ADMIN, DENIED.');
+        }
+    },
+
+    async (req, res, next) => {
+        try {
+            const post = await Post.findOne({ _id: req.params.id }, { _id: 0 }).populate('author', { username: 1, _id: 0 });
+            res.json({ post });
+        } catch (err) {
+            console.log(err);
+            return next(err);
+        }
+    }
+];
 
 exports.postsNewPost = [
     passport.authenticate('jwt', {session: false}),
@@ -132,12 +178,14 @@ exports.postsUpdatePost = [
         const errors = validationResult(req);
 
         if(!errors.isEmpty()) {
+            console.log('yolp')
             res.status(400).json({
                 title: req.body.title,
                 text: req.body.text,
                 status: req.body.status,
                 errors: errors.array()
             })
+            console.log('response', res)
             return;
         }
 

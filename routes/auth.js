@@ -10,4 +10,6 @@ router.post('/isLoggedIn', authController.authIsLoggedIn);
 
 router.post('/new', authController.newPost);
 
+router.post('/admin', authController.authAdmin);
+
 module.exports = router;
