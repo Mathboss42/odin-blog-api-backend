@@ -36,6 +36,7 @@ exports.authPost = [
 ];
 
 exports.authIsLoggedIn = [
+    (req, res, next) => {console.log('isloggedin function'); next()},
     passport.authenticate('jwt', {session: false}),
 
     (req, res, next) => {

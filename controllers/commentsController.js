@@ -23,6 +23,31 @@ exports.commentsGetAllFromPost = async (req, res, next) => {
     }
 };
 
+exports.commentsGetAllFromPostWithAuth = [
+    passport.authenticate('jwt', {session: false}),
+
+    async (req, res, next) => {
+        try {
+            // console.log('called');  
+            let comments = await Comment.find({ post: req.params.postid }).populate('author', { username: 1, _id: 0 });
+            comments = JSON.parse(JSON.stringify(comments));
+            for (let i = 0; i < comments.length; i++) {
+                if (comments[i].author.username === req.user.username) {
+                    comments[i].isEditable = true;
+                } else {
+                    comments[i].isEditable = false;
+                }
+                // console.log(comments[i]);
+            }
+            // console.log(comments);
+            // console.log(req.params)
+            res.json({ comments });
+        } catch (err) {
+            return next(err);
+        }
+    }
+]
+
 exports.commentsGetOne = async (req, res, next) => {
     try {
         const comment = await Comment.findOne({ _id: req.params.id }).populate('author', { username: 1, _id: 0 });
