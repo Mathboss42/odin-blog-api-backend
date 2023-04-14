@@ -34,7 +34,7 @@ passport.use(
         jwtFromRequest: ExtractJWT.fromAuthHeaderAsBearerToken(),
         secretOrKey: process.env.JWT_KEY
     }, async function(jwtPayload, done){
-        console.log('called')
+        console.log('jwt strategy called')
         try {
             const user = await User.findOne({id: jwtPayload.userId}, { username: 1, isAdmin: 1 });
 

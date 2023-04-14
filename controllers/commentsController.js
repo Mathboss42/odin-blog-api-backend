@@ -14,7 +14,7 @@ exports.commentsGetAll = async (req, res, next) => {
 
 exports.commentsGetAllFromPost = async (req, res, next) => {
     try {
-        console.log('called');  
+        // console.log('called');  
         const comments = await Comment.find({ post: req.params.postid }).populate('author', { username: 1, _id: 0 });
         console.log(req.params)
         res.json({ comments });
@@ -35,14 +35,15 @@ exports.commentsGetOne = async (req, res, next) => {
 
 exports.commentsNewComment = [
     passport.authenticate('jwt', {session: false}),
+    (req, res, next) => {console.log('asdasdasdasdasdasdasd'); next()},
 
     body('text', 'Text Contents must not be empty.')
         .trim()
-        .isLength({ min: 2 })
+        .isLength({ min: 1 })
         .escape(),
     body('post', 'Post must not be empty.')
         .trim()
-        .isLength({ min: 2 })
+        .isLength({ min: 1 })
         .escape(),
     
     (req, res, next) => {
@@ -59,7 +60,7 @@ exports.commentsNewComment = [
         const comment = new Comment({
             text: req.body.text,
             author: req.user._id,
-            post: req.user._id,
+            post: req.body.post,
         });
 
         comment.save().then(() => {
@@ -71,6 +72,7 @@ exports.commentsNewComment = [
                 }
             });
         }).catch((err) => {
+            console.log('err', err)
             return next(err);
         });
     }
