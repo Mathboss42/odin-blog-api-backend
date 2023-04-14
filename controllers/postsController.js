@@ -73,9 +73,11 @@ exports.postsGetHidden = [
 ];
 
 exports.postsNewPost = [
+    (req, res, next) => {console.log('ASDASDASDASD heeh'); next()},
     passport.authenticate('jwt', {session: false}),
     
     (req, res, next) => {
+        console.log('creating new post');
         if (req.user.isAdmin) {
             return next();
         } else {

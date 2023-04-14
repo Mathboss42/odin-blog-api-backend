@@ -12,9 +12,9 @@ router.post('/posts/all', postsController.postsGetAll);
 
 router.get('/posts/:id', postsController.postsGetOne);
 
-router.post('/posts/:id', postsController.postsGetHidden);
-
 router.post('/posts/new', postsController.postsNewPost);
+
+router.post('/posts/:id', postsController.postsGetHidden);
 
 router.delete('/posts/:id', postsController.postsDeletePost);
 
