@@ -35,6 +35,14 @@ exports.authPost = [
     }
 ];
 
+exports.authIsLoggedIn = [
+    passport.authenticate('jwt', {session: false}),
+
+    (req, res, next) => {
+        res.status(200).send('Is Logged In');
+    }
+];
+
 exports.newPost = [
     body("username", "Username must not be empty.")
         .trim()
